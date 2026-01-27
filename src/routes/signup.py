@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Request
 import sqlite3
 import os
-from utils.hasher import hasher  # your hasher.py
+from utils.hasher import hasher
+from fastapi.responses import JSONResponse
+
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -70,12 +72,15 @@ async def signup(request: Request):
     finally:
         conn.close()
 
-    return {
-        "message": "User registered successfully",
-        "data": {
-            "userid": user_id,
-            "name": name,
-            "username": username,
-            "email": email
+    return JSONResponse(status_code=201,
+        content={
+            "message": "User created successfully",
+            "success": True,
+            "data": {
+                "userid": user_id,
+                "name": name,
+                "username": username,
+                "email": email
+            }
         }
-    }
+    )
