@@ -31,6 +31,7 @@ def ensure_schema(conn):
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 name TEXT,
+                email TEXT UNIQUE NOT NULL,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL
             );
@@ -43,6 +44,7 @@ async def signup(request: Request):
     data = await request.json()
 
     name = data.get("name")
+    email = data.get("email")
     username = data.get("username")
     password = data.get("password")
 
@@ -69,10 +71,10 @@ async def signup(request: Request):
                 # 3️⃣ Insert user
                 cur.execute(
                     """
-                    INSERT INTO users (name, username, password)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO users (name,email, username, password)
+                    VALUES (%s, %s, %s, %s)
                     """,
-                    (name, username, password)
+                    (name, email, username, password)
                 )
 
             conn.commit()
@@ -84,8 +86,9 @@ async def signup(request: Request):
 
     return {
         "message": "User registered successfully",
-        "user": {
+        "data": {
             "name": name,
-            "username": username
+            "username": username,
+            "email": email
         }
     }
