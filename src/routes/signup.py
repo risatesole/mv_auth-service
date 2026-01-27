@@ -22,10 +22,6 @@ def get_db_connection():
 
 
 def ensure_schema(conn):
-    """
-    Ensure required tables exist.
-    Safe to run multiple times.
-    """
     with conn.cursor() as cur:
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -53,11 +49,9 @@ async def signup(request: Request):
 
     try:
         with get_db_connection() as conn:
-            # 1️⃣ Ensure DB is ready
             ensure_schema(conn)
 
             with conn.cursor() as cur:
-                # 2️⃣ Check if user exists
                 cur.execute(
                     "SELECT 1 FROM users WHERE username = %s",
                     (username,)
@@ -68,14 +62,16 @@ async def signup(request: Request):
                         detail="Username already taken"
                     )
 
-                # 3️⃣ Insert user
                 cur.execute(
                     """
-                    INSERT INTO users (name,email, username, password)
+                    INSERT INTO users (name, email, username, password)
                     VALUES (%s, %s, %s, %s)
+                    RETURNING id
                     """,
                     (name, email, username, password)
                 )
+
+                user_id = cur.fetchone()[0]
 
             conn.commit()
 
@@ -87,6 +83,7 @@ async def signup(request: Request):
     return {
         "message": "User registered successfully",
         "data": {
+            "userid": user_id,
             "name": name,
             "username": username,
             "email": email
