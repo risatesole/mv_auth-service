@@ -21,7 +21,7 @@ def ensure_schema(conn):
             name TEXT,
             email TEXT UNIQUE NOT NULL,
             username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
+            passwordhash TEXT NOT NULL
         );
     """)
     conn.commit()
@@ -54,7 +54,7 @@ async def signup(request: Request):
 
         cursor = conn.execute(
             """
-            INSERT INTO users (name, email, username, password)
+            INSERT INTO users (name, email, username, passwordhash)
             VALUES (?, ?, ?, ?)
             """,
             (name, email, username, hashed_password)
