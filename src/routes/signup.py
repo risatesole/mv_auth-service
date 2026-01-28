@@ -49,6 +49,17 @@ async def signup(request: Request):
     username = data.get("username")
     password = data.get("password")
 
+    # reject username with spaces
+    if any(char.isspace() for char in username):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": f"Username must not contain spaces",
+            }
+        )
+
+
     try:
         conn = get_db_connection()
         ensure_schema(conn)
