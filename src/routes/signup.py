@@ -50,6 +50,18 @@ async def signup(request: Request):
     username = data.get("username")
     password = data.get("password")
 
+    # reject short usernames
+    MIN_USERNAME_LEN = 3
+
+    if len(username) < MIN_USERNAME_LEN:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": f"Username must be at least {MIN_USERNAME_LEN} characters long",
+            }
+        )
+
     # reject username with spaces
     if any(char.isspace() for char in username):
         return JSONResponse(
