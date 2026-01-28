@@ -4,7 +4,6 @@ import os
 from utils.hasher import hasher
 from fastapi.responses import JSONResponse
 
-
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 DB_FILE = os.getenv("DB_FILE", "users.sqlite3")
@@ -33,13 +32,22 @@ def ensure_schema(conn):
 async def signup(request: Request):
     data = await request.json()
 
+    required_fields = ["name", "email", "username", "password"]
+    missing_fields = [field for field in required_fields if not data.get(field)]
+
+    if missing_fields:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": f"Missing fields: {', '.join(missing_fields)}",
+            }
+        )
+
     name = data.get("name")
     email = data.get("email")
     username = data.get("username")
     password = data.get("password")
-
-    if not username or not password:
-        raise HTTPException(status_code=400, detail="Username and password required")
 
     try:
         conn = get_db_connection()
