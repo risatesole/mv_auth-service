@@ -3,6 +3,7 @@ import sqlite3
 import os
 from utils.hasher import hasher
 from fastapi.responses import JSONResponse
+import re
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -58,6 +59,16 @@ async def signup(request: Request):
                 "message": f"Username must not contain spaces",
             }
         )
+    
+    # reject username with special characters:
+    if re.search(r"[^a-zA-Z0-9_]", username):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "message": f"Username contains invalid characters",
+            }
+        )  
 
 
     try:
