@@ -5,23 +5,9 @@ import re
 from config.env import ENVIRONMENTVARIABLES
 from config.config import database
 
-
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 DB_FILE = ENVIRONMENTVARIABLES["SQLITE3DBLOCATION"]
-
-def ensure_schema(conn):
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT UNIQUE NOT NULL,
-            username TEXT UNIQUE NOT NULL,
-            passwordhash TEXT NOT NULL
-        );
-    """)
-    conn.commit()
-
 
 @router.post("/signup")
 async def signup(request: Request):
@@ -78,7 +64,6 @@ async def signup(request: Request):
 
     try:
         conn = database.get_connection()
-        ensure_schema(conn)
 
         result = conn.execute(
             "SELECT 1 FROM users WHERE username = ?", (username,)
