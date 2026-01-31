@@ -1,18 +1,19 @@
 from fastapi import APIRouter, HTTPException, Request
 import sqlite3
-import os
+# import os
 from utils.hasher import hasher
 from fastapi.responses import JSONResponse
 import re
+from config.env import ENVIRONMENTVARIABLES
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-DB_FILE = os.getenv("DB_FILE", "users.sqlite3")
+DB_FILE = ENVIRONMENTVARIABLES["SQLITE3DBLOCATION"]
 
 
 def get_db_connection():
     conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row  
+    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -71,7 +72,7 @@ async def signup(request: Request):
                 "message": f"Username must not contain spaces",
             }
         )
-    
+
     # reject username with special characters:
     if re.search(r"[^a-zA-Z0-9_]", username):
         return JSONResponse(
@@ -80,7 +81,7 @@ async def signup(request: Request):
                 "success": False,
                 "message": f"Username contains invalid characters",
             }
-        )  
+        )
 
 
     try:
@@ -104,7 +105,7 @@ async def signup(request: Request):
             (name, email, username, hashed_password)
         )
         conn.commit()
-        
+
         user_id = cursor.lastrowid
 
     except HTTPException:
