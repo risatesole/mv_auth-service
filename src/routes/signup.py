@@ -1,21 +1,14 @@
 from fastapi import APIRouter, HTTPException, Request
-import sqlite3
-# import os
 from utils.hasher import hasher
 from fastapi.responses import JSONResponse
 import re
 from config.env import ENVIRONMENTVARIABLES
+from config.config import database
+
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 DB_FILE = ENVIRONMENTVARIABLES["SQLITE3DBLOCATION"]
-
-
-def get_db_connection():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
 
 def ensure_schema(conn):
     conn.execute("""
@@ -83,9 +76,8 @@ async def signup(request: Request):
             }
         )
 
-
     try:
-        conn = get_db_connection()
+        conn = database.get_connection()
         ensure_schema(conn)
 
         result = conn.execute(
