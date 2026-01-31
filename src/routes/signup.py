@@ -2,12 +2,9 @@ from fastapi import APIRouter, HTTPException, Request
 from utils.hasher import hasher
 from fastapi.responses import JSONResponse
 import re
-from config.env import ENVIRONMENTVARIABLES
 from config.config import database
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-
-DB_FILE = ENVIRONMENTVARIABLES["SQLITE3DBLOCATION"]
 
 @router.post("/signup")
 async def signup(request: Request):
